@@ -40,12 +40,18 @@ def find_nearest_station(lat, lon, token):
         "longitude": lon,
         "sortfield": "distance",
         "sortorder": "asc",
-        "limit": 1
+        "limit": 5  # Increase limit to ensure at least one valid station returns
     }
+
     response = requests.get(url, headers=headers, params=params)
+    
+    if response.status_code == 400:
+        raise ValueError("NOAA API rejected request. Check token validity or formatting.")
+    
     response.raise_for_status()
     results = response.json().get("results", [])
     return results[0]["id"] if results else None
+
 
 def fetch_precipitation_data(station_id, token, start_year, end_year):
     url = "https://www.ncdc.noaa.gov/cdo-web/api/v2/data"
